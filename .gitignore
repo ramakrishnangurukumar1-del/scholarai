@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/.env
+backend/storage/
+backend/scholarai.db
+backend/demo_docs/
+backend/_alembic_tmp.db
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

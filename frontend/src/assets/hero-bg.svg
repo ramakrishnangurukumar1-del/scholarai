@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" fill="none">
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef1ff"/>
+      <stop offset="0.5" stop-color="#e6eafc"/>
+      <stop offset="1" stop-color="#dfe4f8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.12" r="0.75">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.1" cy="0.9" r="0.6">
+      <stop offset="0" stop-color="#8b93ff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#8b93ff" stop-opacity="0"/>
+    </radialGradient>
+    <g id="cap">
+      <path d="M0 -10 L17 -2 L0 6 L-17 -2 Z" fill="#1e2a4a"/>
+      <path d="M-10 0.8 V8 C-10 11.5 10 11.5 10 8 V0.8 L0 5 Z" fill="#1e2a4a"/>
+      <line x1="17" y1="-2" x2="17" y2="10" stroke="#1e2a4a" stroke-width="1.5"/>
+      <circle cx="17" cy="10" r="2" fill="#6366f1"/>
+    </g>
+  </defs>
+
+  <rect width="1440" height="820" fill="url(#wash)"/>
+  <rect width="1440" height="820" fill="url(#glow)"/>
+  <rect width="1440" height="820" fill="url(#glow2)"/>
+
+  <g opacity="0.14" fill="#1e2a4a">
+    <use href="#cap" transform="translate(1130 110) rotate(-18) scale(3.1)"/>
+    <use href="#cap" transform="translate(1285 250) rotate(12) scale(2.3)"/>
+    <use href="#cap" transform="translate(1000 250) rotate(26) scale(1.9)"/>
+    <use href="#cap" transform="translate(1360 80) rotate(-8) scale(1.7)"/>
+    <use href="#cap" transform="translate(1200 400) rotate(-32) scale(2.0)"/>
+    <use href="#cap" transform="translate(1390 360) rotate(6) scale(1.5)"/>
+    <use href="#cap" transform="translate(920 130) rotate(-14) scale(1.4)"/>
+    <use href="#cap" transform="translate(1070 470) rotate(20) scale(1.5)"/>
+    <use href="#cap" transform="translate(1470 200) rotate(-4) scale(1.6)"/>
+  </g>
+</svg>

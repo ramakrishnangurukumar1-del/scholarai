@@ -1,0 +1,55 @@
+import { Link } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { Icon } from '@/components/ui/icons'
+
+const POINTS = [
+  'Apply to every scholarship from one profile',
+  'Documents scanned and checked automatically',
+  'Track each application in real time',
+]
+
+export function AuthShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid min-h-screen lg:grid-cols-2">
+      {/* brand panel */}
+      <div className="relative hidden flex-col justify-between bg-primary p-12 text-white lg:flex">
+        <Link to="/" className="flex items-center gap-2.5 text-lg font-bold">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/15">◆</span>
+          ScholarAI
+        </Link>
+        <div>
+          <h2 className="text-3xl font-bold leading-tight">
+            Scholarships, made <span className="text-white/70">intelligent</span>.
+          </h2>
+          <ul className="mt-8 space-y-3">
+            {POINTS.map((p) => (
+              <li key={p} className="flex items-center gap-3 text-sm text-white/80">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/15">
+                  <Icon.check width={13} height={13} />
+                </span>
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="text-xs text-white/50">
+          The system assists officers — it never approves or rejects anyone automatically.
+        </p>
+      </div>
+
+      {/* form panel */}
+      <div className="flex items-center justify-center bg-bg-subtle px-6 py-12">
+        <div className="w-full max-w-sm">
+          <Link
+            to="/"
+            className="mb-8 flex items-center justify-center gap-2 text-lg font-bold text-primary lg:hidden"
+          >
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-white">◆</span>
+            ScholarAI
+          </Link>
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
