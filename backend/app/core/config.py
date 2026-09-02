@@ -21,8 +21,8 @@ class Settings(BaseSettings):
 
     # OCR — path to tesseract.exe; blank = rely on PATH / common install locations
     TESSERACT_CMD: str = ""
-    # Tesseract language codes, "+"-joined. Needs the matching .traineddata files
-    # in tessdata/. e.g. "eng+tam+hin+tel+kan+mal+ben+guj+mar+pan+ori".
+    # Tesseract language codes, "+"-joined; first = primary script. Needs the matching
+    # .traineddata files in tessdata/. e.g. "tam+eng", "eng+hin+tam+tel+kan+mal".
     OCR_LANGUAGES: str = "eng"
 
     # Auth / JWT
