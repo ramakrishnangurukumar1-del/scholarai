@@ -69,6 +69,21 @@ def create_refresh_token(user_id: uuid.UUID, role: str) -> str:
     )
 
 
+def create_reset_token(user_id: uuid.UUID, password_hash: str) -> str:
+    """Password-reset token. Bound to the current hash so it's single-use:
+    once the password changes, the token no longer verifies."""
+    now = datetime.now(UTC)
+    payload = {
+        "sub": str(user_id),
+        "type": "reset",
+        "ph": password_hash[-16:],  # fingerprint of the hash in effect when issued
+        "iat": now,
+        "exp": now + timedelta(minutes=30),
+        "jti": uuid.uuid4().hex,
+    }
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+
 def decode_token(token: str) -> dict[str, Any]:
     """Raises jwt.PyJWTError subclasses on invalid / expired tokens."""
     return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])

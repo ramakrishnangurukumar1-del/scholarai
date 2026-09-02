@@ -35,6 +35,17 @@ class Settings(BaseSettings):
     LOGIN_MAX_ATTEMPTS: int = 15
     LOGIN_WINDOW_SECONDS: int = 300
 
+    # Where the frontend lives (used to build password-reset links)
+    FRONTEND_URL: str = "http://localhost:5173"
+
+    # SMTP for password-reset emails (optional). Without it, the reset link is
+    # returned in the API response so the flow still works in dev/demo.
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = "ScholarAI <no-reply@scholarai.app>"
+
     # AI Review Assistant (optional). Set GOOGLE_API_KEY to enable a real LLM;
     # without it the assistant returns a deterministic grounded answer.
     GOOGLE_API_KEY: str = ""

@@ -63,6 +63,49 @@ def test_me_requires_token(client):
     assert client.get("/api/v1/auth/me").status_code == 401
 
 
+def test_forgot_password_returns_reset_link_when_no_smtp(client):
+    r = client.post("/api/v1/auth/forgot-password", json={"email": "student@scholarai.dev"})
+    assert r.status_code == 200
+    assert r.json()["reset_url"]  # dev / no-SMTP path hands back the link
+
+
+def test_forgot_password_hides_unknown_email(client):
+    r = client.post("/api/v1/auth/forgot-password", json={"email": "nobody@nowhere.com"})
+    assert r.status_code == 200
+    assert r.json()["reset_url"] is None
+
+
+def test_reset_password_full_flow(client):
+    link = client.post(
+        "/api/v1/auth/forgot-password", json={"email": "student@scholarai.dev"}
+    ).json()["reset_url"]
+    token = link.split("token=")[1]
+
+    r = client.post("/api/v1/auth/reset-password", json={"token": token, "password": "brandnew1"})
+    assert r.status_code == 200
+    assert r.json()["access_token"]
+
+    # old password no longer works, new one does
+    assert client.post(
+        "/api/v1/auth/login", json={"email": "student@scholarai.dev", "password": DEMO_PASSWORD}
+    ).status_code == 401
+    assert client.post(
+        "/api/v1/auth/login", json={"email": "student@scholarai.dev", "password": "brandnew1"}
+    ).status_code == 200
+
+    # the token is single-use
+    assert client.post(
+        "/api/v1/auth/reset-password", json={"token": token, "password": "another11"}
+    ).status_code == 400
+
+
+def test_reset_password_rejects_garbage_token(client):
+    r = client.post(
+        "/api/v1/auth/reset-password", json={"token": "not-a-token", "password": "whatever1"}
+    )
+    assert r.status_code == 400
+
+
 def test_login_rate_limited(client):
     for _ in range(15):
         client.post(

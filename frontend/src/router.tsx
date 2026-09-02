@@ -4,6 +4,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { LandingPage } from '@/features/landing/LandingPage'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RegisterPage } from '@/features/auth/RegisterPage'
+import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { StudentDashboard } from '@/features/student/Dashboard'
 import { Scholarships } from '@/features/student/Scholarships'
 import { ScholarshipDetail } from '@/features/student/ScholarshipDetail'
@@ -51,6 +53,8 @@ export const router = createBrowserRouter([
   { path: '/officer/login', element: <LoginPage portal="authority" /> },
   { path: '/admin/login', element: <LoginPage portal="admin" /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     element: <RequireRole role="student" />,
     children: [

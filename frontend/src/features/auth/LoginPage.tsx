@@ -124,7 +124,7 @@ export function LoginPage({ portal }: { portal: Portal }) {
           <label className="flex items-center gap-2 text-gray-500">
             <input type="checkbox" className="rounded border-gray-300" /> Remember me
           </label>
-          <button type="button" className="font-medium text-ai">Forgot password?</button>
+          <Link to="/forgot-password" className="font-medium text-ai">Forgot password?</Link>
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}
         {wrongRole && (
