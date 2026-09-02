@@ -58,7 +58,7 @@ export function LandingPage() {
             <Link to="/register">
               <Button>Find Scholarships</Button>
             </Link>
-            <Link to="/login">
+            <Link to="/officer/login">
               <Button variant="secondary">For Institutions</Button>
             </Link>
           </div>

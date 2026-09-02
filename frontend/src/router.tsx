@@ -20,6 +20,17 @@ import { Analytics } from '@/features/authority/Analytics'
 import { AdminScholarships, AdminUsers } from '@/features/admin/AdminPages'
 import type { Role } from '@/lib/types'
 
+const LOGIN_PATH: Record<Role, string> = {
+  student: '/login',
+  authority: '/officer/login',
+  admin: '/admin/login',
+}
+const HOME_PATH: Record<Role, string> = {
+  student: '/app',
+  authority: '/authority',
+  admin: '/admin',
+}
+
 function RequireRole({ role }: { role: Role }) {
   const { user, loading } = useAuth()
   if (loading) {
@@ -29,14 +40,16 @@ function RequireRole({ role }: { role: Role }) {
       </div>
     )
   }
-  if (!user) return <Navigate to="/login" replace />
-  if (user.role !== role) return <Navigate to={`/${user.role === 'student' ? 'app' : user.role}`} replace />
+  if (!user) return <Navigate to={LOGIN_PATH[role]} replace />
+  if (user.role !== role) return <Navigate to={HOME_PATH[user.role]} replace />
   return <Outlet />
 }
 
 export const router = createBrowserRouter([
   { path: '/', element: <LandingPage /> },
-  { path: '/login', element: <LoginPage /> },
+  { path: '/login', element: <LoginPage portal="student" /> },
+  { path: '/officer/login', element: <LoginPage portal="authority" /> },
+  { path: '/admin/login', element: <LoginPage portal="admin" /> },
   { path: '/register', element: <RegisterPage /> },
   {
     element: <RequireRole role="student" />,
