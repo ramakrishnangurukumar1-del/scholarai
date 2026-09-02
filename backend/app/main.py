@@ -52,6 +52,10 @@ def health() -> dict:
         "status": "ok",
         "env": settings.APP_ENV,
         "database": "up" if db_ok else "down",
-        "ocr": f"tesseract {ocr_version}" if ocr_version else "unavailable (manual entry)",
+        "ocr": (
+            f"tesseract {ocr_version} [{ocr.languages()}]"
+            if ocr_version
+            else "unavailable (manual entry)"
+        ),
         "assistant": f"llm ({settings.AI_MODEL})" if llm.is_configured() else "deterministic",
     }

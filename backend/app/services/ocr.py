@@ -58,6 +58,33 @@ def version() -> str | None:
         return None
 
 
+@lru_cache
+def _langs() -> str:
+    """Requested OCR languages, filtered to the .traineddata files actually present."""
+    if not _configure():
+        return "eng"
+    import pytesseract
+
+    try:
+        installed = set(pytesseract.get_languages(config=""))
+    except Exception:
+        return "eng"
+    wanted = [c.strip() for c in settings.OCR_LANGUAGES.split("+") if c.strip()]
+    available = [c for c in wanted if c in installed] or ["eng"]
+    return "+".join(available)
+
+
+def languages() -> str:
+    """The OCR languages actually in use (for /health)."""
+    return _langs()
+
+
+def _ocr_image(img) -> str:
+    import pytesseract
+
+    return pytesseract.image_to_string(img, lang=_langs())
+
+
 def extract_text(data: bytes, mime_type: str | None) -> str:
     mime = (mime_type or "").lower()
     if mime == "application/pdf" or data[:5] == b"%PDF-":
@@ -71,10 +98,8 @@ def extract_text(data: bytes, mime_type: str | None) -> str:
         return ""
     try:
         from PIL import Image
-        import pytesseract
 
-        img = Image.open(io.BytesIO(data))
-        return pytesseract.image_to_string(img)
+        return _ocr_image(Image.open(io.BytesIO(data)))
     except Exception:
         return ""
 
@@ -104,8 +129,7 @@ def _pdf_text(data: bytes) -> str:
         out = []
         for page in doc:
             pix = page.get_pixmap(dpi=200)
-            img = Image.open(io.BytesIO(pix.tobytes("png")))
-            out.append(pytesseract.image_to_string(img))
+            out.append(_ocr_image(Image.open(io.BytesIO(pix.tobytes("png")))))
         return "\n".join(out)
     except Exception:
         return embedded
