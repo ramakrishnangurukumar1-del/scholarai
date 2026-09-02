@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/mockApi'
 import { scholarshipApi } from '@/lib/scholarshipApi'
+import { adminApi } from '@/lib/adminApi'
 import { apiError } from '@/lib/apiClient'
 import { inr } from '@/lib/cn'
 import { Badge, Button, Card, CardTitle, Field, Input, Select } from '@/components/ui'
@@ -139,43 +140,120 @@ export function AdminScholarships() {
   )
 }
 
-const USERS = [
-  { name: 'Ramakrishnan G', email: 'student@scholarai.dev', role: 'student', active: true },
-  { name: 'Anitha R', email: 'authority@scholarai.dev', role: 'authority', active: true },
-  { name: 'Karthik V', email: 'karthik@scholarai.dev', role: 'student', active: true },
-  { name: 'Admin User', email: 'admin@scholarai.dev', role: 'admin', active: true },
-]
-
 export function AdminUsers() {
+  const qc = useQueryClient()
+  const { data: users } = useQuery({ queryKey: ['admin-users'], queryFn: adminApi.listUsers })
+
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
+  const [form, setForm] = useState({ full_name: '', email: '', password: '', department: '' })
+
+  const create = useMutation({
+    mutationFn: () =>
+      adminApi.createAuthority({
+        full_name: form.full_name,
+        email: form.email,
+        password: form.password,
+        department: form.department || undefined,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-users'] })
+      setOpen(false)
+      setForm({ full_name: '', email: '', password: '', department: '' })
+      setError('')
+    },
+    onError: (e) => setError(apiError(e, 'Could not create authority')),
+  })
+
+  const toggle = useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) => adminApi.setActive(id, active),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
+  })
+
+  const roleTone = { admin: 'ai', authority: 'warning', student: 'neutral' } as const
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-primary">Users</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-primary">Users</h1>
+        <Button size="sm" onClick={() => setOpen((o) => !o)}>
+          {open ? 'Cancel' : 'Add Authority'}
+        </Button>
+      </div>
+
+      {open && (
+        <Card>
+          <CardTitle>New authority (scholarship officer)</CardTitle>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Full name">
+              <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+            </Field>
+            <Field label="Department">
+              <Input value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} placeholder="Scholarships" />
+            </Field>
+            <Field label="Email">
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            </Field>
+            <Field label="Temporary password">
+              <Input value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="min 6 characters" />
+            </Field>
+          </div>
+          {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+          <Button
+            className="mt-4"
+            disabled={!form.full_name || !form.email || form.password.length < 6 || create.isPending}
+            onClick={() => create.mutate()}
+          >
+            {create.isPending ? 'Creating…' : 'Create authority account'}
+          </Button>
+          <p className="mt-2 text-xs text-gray-400">
+            Share the email + temporary password with the officer. They log in at the normal sign-in page.
+          </p>
+        </Card>
+      )}
+
       <Card>
         <CardTitle>All users</CardTitle>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
-              <th className="py-2">Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {USERS.map((u) => (
-              <tr key={u.email} className="border-b border-gray-100">
-                <td className="py-3 font-medium text-primary">{u.name}</td>
-                <td>{u.email}</td>
-                <td className="capitalize">{u.role}</td>
-                <td>
-                  <Badge tone={u.active ? 'success' : 'neutral'}>
-                    {u.active ? 'Active' : 'Disabled'}
-                  </Badge>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-400">
+                <th className="py-2">Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th className="text-right">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(users ?? []).map((u) => (
+                <tr key={u.id} className="border-b border-gray-100">
+                  <td className="py-3 font-medium text-primary">{u.full_name ?? '—'}</td>
+                  <td>{u.email}</td>
+                  <td>
+                    <Badge tone={roleTone[u.role]}>{u.role}</Badge>
+                  </td>
+                  <td>
+                    <Badge tone={u.is_active ? 'success' : 'neutral'}>
+                      {u.is_active ? 'Active' : 'Disabled'}
+                    </Badge>
+                  </td>
+                  <td className="text-right">
+                    {u.role !== 'admin' && (
+                      <button
+                        className="text-ai hover:underline disabled:opacity-40"
+                        disabled={toggle.isPending}
+                        onClick={() => toggle.mutate({ id: u.id, active: !u.is_active })}
+                      >
+                        {u.is_active ? 'Disable' : 'Enable'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   )
