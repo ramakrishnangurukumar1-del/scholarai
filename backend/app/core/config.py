@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     # AI Review Assistant (optional). Set GOOGLE_API_KEY to enable a real LLM;
     # without it the assistant returns a deterministic grounded answer.
     GOOGLE_API_KEY: str = ""
-    AI_MODEL: str = "gemini-2.0-flash"
+    AI_MODEL: str = "gemini-flash-lite-latest"
 
     @property
     def cors_origins_list(self) -> list[str]:

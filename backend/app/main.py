@@ -14,6 +14,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
+logging.getLogger("google_genai").setLevel(logging.ERROR)
 log = logging.getLogger("scholarai")
 
 app = FastAPI(title="ScholarAI API", version="1.0.0")
