@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '@/lib/mockApi'
+import { openDocument } from '@/lib/applicationApi'
 import { cn, inr } from '@/lib/cn'
 import { Badge, Button, Card, CardTitle, CheckPill, Ring, Timeline } from '@/components/ui'
 import { Icon } from '@/components/ui/icons'
@@ -99,8 +100,15 @@ export function ReviewPage() {
                     <div key={d.id} className="flex items-center gap-3 px-4 py-3 text-sm">
                       <Icon.file width={15} height={15} className="text-ai" />
                       <span className="capitalize text-gray-700">{d.docType.replace('_', ' ')}</span>
-                      <span className="text-gray-400">{d.fileName}</span>
-                      <span className="ml-auto"><CheckPill result={worst} /></span>
+                      <span className="truncate text-gray-400">{d.fileName}</span>
+                      <button
+                        type="button"
+                        onClick={() => openDocument(d.id).catch(() => alert('Could not open the document.'))}
+                        className="ml-auto shrink-0 font-medium text-ai hover:underline"
+                      >
+                        View
+                      </button>
+                      <CheckPill result={worst} />
                     </div>
                   )
                 })}

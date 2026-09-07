@@ -44,6 +44,29 @@ def test_full_application_flow_clean(client, student_token):
     assert r.json()["ai_flagged"] is False
 
 
+def test_uploaded_document_is_viewable(client, student_token, authority_token):
+    app_id = _new_application(client, student_token)
+    up = client.post(
+        f"/api/v1/applications/{app_id}/documents",
+        headers=auth(student_token),
+        data={"doc_type": "identity"},
+        files=_fake_file("id.txt", "AADHAAR 1234 5678 9012"),
+    )
+    assert up.status_code == 201
+    doc_id = up.json()["id"]
+
+    # the applicant can retrieve their own file
+    r = client.get(f"/api/v1/documents/{doc_id}/file", headers=auth(student_token))
+    assert r.status_code == 200
+    assert r.content == b"AADHAAR 1234 5678 9012"
+
+    # so can a reviewing officer
+    assert client.get(f"/api/v1/documents/{doc_id}/file", headers=auth(authority_token)).status_code == 200
+
+    # but not an anonymous request
+    assert client.get(f"/api/v1/documents/{doc_id}/file").status_code == 401
+
+
 def test_application_flagged_on_income_mismatch(client, student_token):
     app_id = _new_application(client, student_token)
     client.put(

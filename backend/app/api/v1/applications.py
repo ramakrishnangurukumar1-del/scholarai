@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -171,9 +171,12 @@ async def upload_document(
         raise HTTPException(status_code=413, detail=f"File exceeds {settings.MAX_UPLOAD_MB} MB")
 
     dest_dir = STORAGE / str(app.id)
-    dest_dir.mkdir(parents=True, exist_ok=True)
     safe_name = f"{doc_type.value}-{uuid.uuid4().hex[:8]}-{file.filename or 'upload'}"
-    (dest_dir / safe_name).write_bytes(data)
+    try:  # a local-disk copy is a convenience; the DB copy is the source of truth
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        (dest_dir / safe_name).write_bytes(data)
+    except OSError:
+        pass
 
     # Real OCR (Tesseract). Falls back to the manual `extracted_income` field, then to
     # the declared income, when OCR is unavailable or finds nothing.
@@ -206,6 +209,7 @@ async def upload_document(
         file_name=file.filename,
         mime_type=file.content_type,
         size_bytes=len(data),
+        data=data,
         ocr_text=ocr_text or None,
         extracted_fields=extracted,
     )
@@ -213,6 +217,35 @@ async def upload_document(
     db.commit()
     db.refresh(doc)
     return DocumentOut.model_validate(doc)
+
+
+@router.get("/documents/{document_id}/file")
+def download_document(
+    document_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    doc = db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    app = _load(db, doc.application_id)
+    _authorise(db, app, user)
+
+    payload = doc.data
+    if payload is None and doc.file_path:  # older uploads: fall back to the disk copy
+        try:
+            payload = Path(doc.file_path).read_bytes()
+        except OSError:
+            payload = None
+    if payload is None:
+        raise HTTPException(status_code=404, detail="File is no longer available")
+
+    filename = (doc.file_name or f"{doc.doc_type.value}").replace('"', "")
+    return Response(
+        content=payload,
+        media_type=doc.mime_type or "application/octet-stream",
+        headers={"Content-Disposition": f'inline; filename="{filename}"'},
+    )
 
 
 @router.delete("/documents/{document_id}", status_code=204)

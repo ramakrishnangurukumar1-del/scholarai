@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '@/lib/mockApi'
+import { openDocument } from '@/lib/applicationApi'
 import { inr } from '@/lib/cn'
 import {
   Badge,
@@ -143,7 +144,16 @@ function DocRow({
       </button>
       {open && (
         <div className="border-t border-gray-100 bg-bg-subtle px-4 py-3 text-sm">
-          <p className="mb-2 font-medium text-primary">Extracted from document (OCR)</p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="font-medium text-primary">Extracted from document (OCR)</p>
+            <button
+              type="button"
+              onClick={() => openDocument(doc.id).catch(() => alert('Could not open the document.'))}
+              className="font-medium text-ai hover:underline"
+            >
+              View file
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2">
             {Object.entries(doc.extractedFields).map(([k, v]) => (
               <Badge key={k}>

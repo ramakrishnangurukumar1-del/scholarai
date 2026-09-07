@@ -57,6 +57,14 @@ const PROGRESS: Record<ApplicationStatus, number> = {
   rejected: 100,
 }
 
+/** Fetch a document (with auth) and open it in a new browser tab. */
+export async function openDocument(documentId: string): Promise<void> {
+  const res = await apiClient.get(`/documents/${documentId}/file`, { responseType: 'blob' })
+  const url = URL.createObjectURL(res.data as Blob)
+  window.open(url, '_blank', 'noopener')
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+}
+
 function mapApp(a: ApiApplication): Application {
   return {
     id: a.id,

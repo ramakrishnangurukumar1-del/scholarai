@@ -32,12 +32,25 @@ def _provision() -> None:
 
             Base.metadata.create_all(bind=engine)
             log.info("schema created")
+        else:
+            _patch_schema(engine)
 
         from scripts.seed import run as seed
 
         seed()
     except Exception as exc:  # noqa: BLE001
         log.warning("auto-init skipped: %s", exc)
+
+
+def _patch_schema(engine) -> None:
+    """Additive, idempotent column additions for databases created by an
+    earlier version. PostgreSQL only (the deployment target)."""
+    if not engine.url.get_backend_name().startswith("postgresql"):
+        return
+    from sqlalchemy import text
+
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE documents ADD COLUMN IF NOT EXISTS data BYTEA"))
 
 
 _provision()

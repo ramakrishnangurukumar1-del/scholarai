@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, LargeBinary, Numeric, String, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,6 +63,9 @@ class Document(Base, UUIDMixin, TimestampMixin):
     file_name: Mapped[str | None] = mapped_column(String(255))
     mime_type: Mapped[str | None] = mapped_column(String(100))
     size_bytes: Mapped[int | None] = mapped_column(Integer)
+    # The raw upload, kept in the database so it is viewable on any host
+    # (serverless deployments have no persistent local disk).
+    data: Mapped[bytes | None] = mapped_column(LargeBinary)
     verification_status: Mapped[VerificationStatus] = mapped_column(
         SAEnum(VerificationStatus, name="verification_status"), default=VerificationStatus.pending
     )
