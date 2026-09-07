@@ -14,6 +14,16 @@ const solutionFlow = [
   'Real-Time Tracking',
 ]
 
+const toolGroups = [
+  { label: 'Frontend', items: ['React', 'TypeScript', 'Vite', 'TailwindCSS', 'TanStack Query'] },
+  { label: 'Backend', items: ['Python', 'FastAPI', 'SQLAlchemy', 'Alembic'] },
+  { label: 'Database', items: ['PostgreSQL', 'TimescaleDB', 'MySQL / SQLite'] },
+  { label: 'Streaming', items: ['Apache Kafka'] },
+  { label: 'Document reading', items: ['Tesseract OCR', 'Google Gemini'] },
+  { label: 'Infrastructure', items: ['Docker', 'Kubernetes', 'nginx API gateway'] },
+  { label: 'Auth', items: ['JWT (access + refresh)', 'PBKDF2', 'Role-based access'] },
+]
+
 const aiFeatures = [
   {
     tag: 'AI',
@@ -134,9 +144,21 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* Problem / solution */}
+      {/* Problem statement */}
       <section id="how" className="mx-auto max-w-7xl px-6 py-16">
-        <h2 className="text-center text-3xl font-bold text-primary">From paperwork to a verified pipeline</h2>
+        <h2 className="text-center text-3xl font-bold text-primary">Problem statement</h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center text-gray-600">
+          Government and institutional scholarships are still processed on paper. Students fill
+          forms and submit physical documents; staff verify income and academic certificates by
+          hand; approvals move slowly across departments; and applicants have no visibility into
+          where their case stands. The result is delays, duplicated effort, avoidable errors and
+          little transparency.
+        </p>
+        <p className="mx-auto mt-3 max-w-3xl text-center text-gray-600">
+          ScholarAI digitises the full lifecycle — <span className="font-medium text-primary">Apply → Verify → Review → Approve → Track</span> —
+          with document reading, automated consistency checks and a transparent eligibility score,
+          while every final decision stays with an authorised officer.
+        </p>
         <div className="mt-10 grid gap-8 lg:grid-cols-2">
           <Card>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-danger">Today</h3>
@@ -146,6 +168,28 @@ export function LandingPage() {
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-success">With ScholarAI</h3>
             <FlowList items={solutionFlow} tone="active" />
           </Card>
+        </div>
+      </section>
+
+      {/* Tools used */}
+      <section id="tools" className="mx-auto max-w-7xl px-6 py-16">
+        <h2 className="text-center text-3xl font-bold text-primary">Tools used</h2>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {toolGroups.map((g) => (
+            <Card key={g.label}>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{g.label}</h3>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {g.items.map((it) => (
+                  <span
+                    key={it}
+                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
+                  >
+                    {it}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          ))}
         </div>
       </section>
 

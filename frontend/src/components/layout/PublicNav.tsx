@@ -11,7 +11,8 @@ export function PublicNav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link to="/"><Logo /></Link>
         <nav className="hidden items-center gap-7 text-sm font-medium text-gray-600 md:flex">
-          <a href="#how" className="hover:text-primary">How It Works</a>
+          <a href="#how" className="hover:text-primary">Problem</a>
+          <a href="#tools" className="hover:text-primary">Tools</a>
           <a href="#ai" className="hover:text-primary">Automation</a>
         </nav>
         <div className="flex items-center gap-3">
