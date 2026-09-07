@@ -4,24 +4,19 @@ import { Badge, Button, Card, Ring } from '@/components/ui'
 import { Icon } from '@/components/ui/icons'
 import heroBg from '@/assets/hero-bg.svg'
 
-const problemFlow = ['Manual Applications', 'Paperwork', 'Manual Verification', 'Long Approval Time', 'No Transparency']
-const solutionFlow = [
-  'Online Application',
-  'Document Upload',
-  'Automated Verification',
-  'Authority Review',
-  'Approval',
-  'Real-Time Tracking',
-]
-
-const toolGroups = [
-  { label: 'Frontend', items: ['React', 'TypeScript', 'Vite', 'TailwindCSS', 'TanStack Query'] },
-  { label: 'Backend', items: ['Python', 'FastAPI', 'SQLAlchemy', 'Alembic'] },
-  { label: 'Database', items: ['PostgreSQL', 'TimescaleDB', 'MySQL / SQLite'] },
-  { label: 'Streaming', items: ['Apache Kafka'] },
-  { label: 'Document reading', items: ['Tesseract OCR', 'Google Gemini'] },
-  { label: 'Infrastructure', items: ['Docker', 'Kubernetes', 'nginx API gateway'] },
-  { label: 'Auth', items: ['JWT (access + refresh)', 'PBKDF2', 'Role-based access'] },
+const tools = [
+  { name: 'React + TypeScript + Vite', use: 'The student, officer and admin web interface.' },
+  { name: 'TailwindCSS', use: 'Styling and the responsive layout.' },
+  { name: 'TanStack Query', use: 'Data fetching, caching and live updates in the UI.' },
+  { name: 'Python + FastAPI', use: 'The REST API and all business logic.' },
+  { name: 'SQLAlchemy + Alembic', use: 'Database models and schema migrations.' },
+  { name: 'PostgreSQL + TimescaleDB', use: 'Primary data store; TimescaleDB holds the analytics time-series.' },
+  { name: 'Apache Kafka', use: 'Streams application events to the analytics pipeline.' },
+  { name: 'Tesseract OCR', use: 'Reads scanned certificates and marksheets (English + Tamil).' },
+  { name: 'Google Gemini', use: 'Explains flagged applications to the reviewing officer.' },
+  { name: 'Docker + Kubernetes', use: 'Containerised deployment of every service.' },
+  { name: 'nginx API gateway', use: 'Single entry point routing the frontend and API.' },
+  { name: 'JWT + PBKDF2', use: 'Authentication, password hashing and role-based access.' },
 ]
 
 const aiFeatures = [
@@ -159,36 +154,17 @@ export function LandingPage() {
           with document reading, automated consistency checks and a transparent eligibility score,
           while every final decision stays with an authorised officer.
         </p>
-        <div className="mt-10 grid gap-8 lg:grid-cols-2">
-          <Card>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-danger">Today</h3>
-            <FlowList items={problemFlow} tone="muted" />
-          </Card>
-          <Card>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-success">With ScholarAI</h3>
-            <FlowList items={solutionFlow} tone="active" />
-          </Card>
-        </div>
       </section>
 
       {/* Tools used */}
       <section id="tools" className="mx-auto max-w-7xl px-6 py-16">
         <h2 className="text-center text-3xl font-bold text-primary">Tools used</h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {toolGroups.map((g) => (
-            <Card key={g.label}>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">{g.label}</h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {g.items.map((it) => (
-                  <span
-                    key={it}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
-                  >
-                    {it}
-                  </span>
-                ))}
-              </div>
-            </Card>
+        <div className="mx-auto mt-10 max-w-3xl divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+          {tools.map((t) => (
+            <div key={t.name} className="flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-baseline sm:gap-6">
+              <span className="w-full shrink-0 font-semibold text-primary sm:w-64">{t.name}</span>
+              <span className="text-sm text-gray-600">{t.use}</span>
+            </div>
           ))}
         </div>
       </section>
@@ -215,26 +191,5 @@ export function LandingPage() {
         ScholarAI — Scholarships, made intelligent.
       </footer>
     </div>
-  )
-}
-
-function FlowList({ items, tone }: { items: string[]; tone: 'muted' | 'active' }) {
-  return (
-    <ol className="space-y-2">
-      {items.map((it, i) => (
-        <li key={it} className="flex items-center gap-3">
-          <span
-            className={
-              tone === 'active'
-                ? 'grid h-6 w-6 place-items-center rounded-full bg-ai-soft text-xs font-semibold text-ai'
-                : 'grid h-6 w-6 place-items-center rounded-full bg-gray-100 text-xs font-semibold text-gray-400'
-            }
-          >
-            {i + 1}
-          </span>
-          <span className="text-sm text-gray-700">{it}</span>
-        </li>
-      ))}
-    </ol>
   )
 }
