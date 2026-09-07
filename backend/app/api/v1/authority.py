@@ -160,6 +160,21 @@ def decide(
             link=f"/app/applications/{app.id}",
         )
     db.commit()
+
+    from app.services import events
+
+    events.publish(
+        f"application.{payload.action}",
+        application_id=str(app.id),
+        code=app.code,
+        scholarship=app.scholarship.name if app.scholarship else None,
+        category=app.scholarship.category.name
+        if app.scholarship and app.scholarship.category
+        else None,
+        actor_role=user.role.value,
+        from_status=prev,
+        to_status=new_status.value,
+    )
     return {"ok": True, "status": new_status.value}
 
 

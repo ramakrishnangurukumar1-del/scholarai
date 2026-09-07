@@ -1,6 +1,7 @@
 """Import every model so Alembic autogenerate and mappers see them."""
 
 from app.db.base import Base
+from app.models.analytics import AnalyticsEvent
 from app.models.application import (
     AiAnalysis,
     Application,
@@ -23,6 +24,7 @@ from app.models.workflow import ApplicationHistory, AuditLog, Notification
 __all__ = [
     "Base",
     "AiAnalysis",
+    "AnalyticsEvent",
     "Application",
     "ApplicationHistory",
     "ApplicationStatus",

@@ -4,7 +4,7 @@ from collections import Counter
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.deps import require_role
@@ -55,12 +55,20 @@ def analytics(db: Session = Depends(get_db)) -> dict:
     today = date.today()
     week_starts = [today - timedelta(days=today.weekday() + 7 * i) for i in range(7, -1, -1)]
     buckets = Counter()
-    for a in apps:
-        if not a.submitted_at:
-            continue
-        d = a.submitted_at.date()
-        wk = d - timedelta(days=d.weekday())
-        buckets[wk] += 1
+
+    ts_rows = _timescale_weekly(db)
+    if ts_rows is not None:
+        # served straight from the TimescaleDB hypertable (time_bucket)
+        for wk, c in ts_rows:
+            buckets[wk] = c
+        source = "timescaledb"
+    else:
+        for a in apps:
+            if not a.submitted_at:
+                continue
+            d = a.submitted_at.date()
+            buckets[d - timedelta(days=d.weekday())] += 1
+        source = "sql"
     over_time = [{"label": wk.strftime("%d %b"), "count": buckets.get(wk, 0)} for wk in week_starts]
 
     # by category
@@ -100,6 +108,29 @@ def analytics(db: Session = Depends(get_db)) -> dict:
             "pending": len(apps) - decided,
         },
         "overTime": over_time,
+        "overTimeSource": source,
         "byCategory": by_category,
         "topScholarships": top,
     }
+
+
+def _timescale_weekly(db: Session) -> list[tuple[date, int]] | None:
+    """Weekly submitted-application counts from the TimescaleDB hypertable,
+    or None if TimescaleDB / the hypertable isn't available."""
+    if not db.bind or not db.bind.url.get_backend_name().startswith("postgresql"):
+        return None
+    try:
+        rows = db.execute(
+            text(
+                """
+                SELECT time_bucket('7 days', "time")::date AS wk, count(*)
+                FROM analytics_events
+                WHERE event_type = 'application.submitted'
+                  AND "time" > now() - interval '8 weeks'
+                GROUP BY wk ORDER BY wk
+                """
+            )
+        ).all()
+    except Exception:
+        return None
+    return [(r[0] - timedelta(days=r[0].weekday()), r[1]) for r in rows] or None

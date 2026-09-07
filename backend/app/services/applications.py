@@ -196,6 +196,19 @@ def submit(db: Session, application: Application, student: Student, scholarship:
     )
     db.commit()
 
+    from app.services import events
+
+    events.publish(
+        "application.submitted",
+        application_id=str(application.id),
+        code=application.code,
+        scholarship=scholarship.name,
+        category=scholarship.category.name if scholarship.category else None,
+        actor_role="student",
+        flagged=application.ai_flagged,
+        eligibility_score=float(application.eligibility_score or 0),
+    )
+
 
 TIMELINE_ORDER = [
     ("Submitted", {ApplicationStatus.submitted, ApplicationStatus.ai_verification,

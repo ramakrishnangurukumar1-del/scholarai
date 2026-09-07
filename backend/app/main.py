@@ -8,7 +8,7 @@ from sqlalchemy import text
 from app.api.v1 import api_router
 from app.core.config import settings
 from app.db.session import engine
-from app.services import llm, ocr
+from app.services import events, llm, ocr
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,4 +58,5 @@ def health() -> dict:
             else "unavailable (manual entry)"
         ),
         "assistant": f"llm ({settings.AI_MODEL})" if llm.is_configured() else "deterministic",
+        "events": f"kafka ({settings.KAFKA_BOOTSTRAP})" if events.is_configured() else "log-only",
     }

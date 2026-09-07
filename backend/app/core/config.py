@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # Where the frontend lives (used to build password-reset links)
     FRONTEND_URL: str = "http://localhost:5173"
 
+    # Event streaming (Kafka). Blank = events are logged only, not published.
+    KAFKA_BOOTSTRAP: str = ""
+    KAFKA_TOPIC: str = "scholarai.events"
+
     # SMTP for password-reset emails (optional). Without it, the reset link is
     # returned in the API response so the flow still works in dev/demo.
     SMTP_HOST: str = ""

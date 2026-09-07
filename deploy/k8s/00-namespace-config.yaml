@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: scholarai
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scholarai-config
+  namespace: scholarai
+data:
+  APP_ENV: "prod"
+  DATABASE_URL: "postgresql+psycopg://scholarai:scholarai@db:5432/scholarai"
+  KAFKA_BOOTSTRAP: "kafka:9092"
+  CORS_ORIGINS: "http://localhost"
+  FRONTEND_URL: "http://localhost"
+  OCR_LANGUAGES: "eng+tam+hin"
+  AI_MODEL: "gemini-flash-lite-latest"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scholarai-secrets
+  namespace: scholarai
+type: Opaque
+stringData:
+  JWT_SECRET: "replace-with-a-strong-random-secret"
+  GOOGLE_API_KEY: ""          # optional — enables the LLM assistant
+  POSTGRES_PASSWORD: "scholarai"

@@ -1,0 +1,97 @@
+# Backend API
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: backend, namespace: scholarai }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: backend } }
+  template:
+    metadata: { labels: { app: backend } }
+    spec:
+      containers:
+        - name: backend
+          image: scholarai-backend:latest      # built from ./backend
+          args: ["api"]
+          envFrom:
+            - configMapRef: { name: scholarai-config }
+          env:
+            - name: JWT_SECRET
+              valueFrom: { secretKeyRef: { name: scholarai-secrets, key: JWT_SECRET } }
+            - name: GOOGLE_API_KEY
+              valueFrom: { secretKeyRef: { name: scholarai-secrets, key: GOOGLE_API_KEY } }
+          ports: [{ containerPort: 8000 }]
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata: { name: backend, namespace: scholarai }
+spec:
+  selector: { app: backend }
+  ports: [{ port: 8000, targetPort: 8000 }]
+---
+# Kafka consumer (analytics)
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: worker, namespace: scholarai }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: worker } }
+  template:
+    metadata: { labels: { app: worker } }
+    spec:
+      containers:
+        - name: worker
+          image: scholarai-backend:latest
+          args: ["worker"]
+          envFrom:
+            - configMapRef: { name: scholarai-config }
+---
+# Frontend
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: frontend, namespace: scholarai }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: frontend } }
+  template:
+    metadata: { labels: { app: frontend } }
+    spec:
+      containers:
+        - name: frontend
+          image: scholarai-frontend:latest     # built from ./frontend
+          ports: [{ containerPort: 80 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: frontend, namespace: scholarai }
+spec:
+  selector: { app: frontend }
+  ports: [{ port: 80, targetPort: 80 }]
+---
+# Ingress — single entry point (API gateway equivalent)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scholarai
+  namespace: scholarai
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: { service: { name: backend, port: { number: 8000 } } }
+          - path: /docs
+            pathType: Prefix
+            backend: { service: { name: backend, port: { number: 8000 } } }
+          - path: /health
+            pathType: Prefix
+            backend: { service: { name: backend, port: { number: 8000 } } }
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: frontend, port: { number: 80 } } }

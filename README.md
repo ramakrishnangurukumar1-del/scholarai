@@ -20,7 +20,10 @@ the final decision; students track everything in real time.
 | OCR | Tesseract (`pytesseract`) |
 | Assistant | Deterministic grounded responder; optional Google Gemini LLM |
 
-Deferred by design (add only when load demands it): Kafka, TimescaleDB, Docker/K8s.
+Full architecture also containerised — PostgreSQL + **TimescaleDB**, **Apache Kafka**
+(event stream → analytics hypertable), **Docker Compose**, **Kubernetes** manifests,
+and an nginx **API gateway**. See [deploy/README.md](deploy/README.md). Every piece
+degrades gracefully, so the app still runs with just Python + a database.
 
 ---
 
@@ -101,15 +104,17 @@ App → http://localhost:5173
 ## Tests
 
 ```bash
-cd backend && pytest        # 22 API tests: auth, scholarships, workflow, RBAC, analytics
+cd backend && pytest        # 32 API tests: auth, password reset, scholarships, workflow, RBAC, admin, analytics
 ```
 
 ---
 
 ## Deployment
 
-See [DEPLOY.md](DEPLOY.md) — free-tier deploy to Render (API) + Vercel (frontend) +
-Railway (MySQL). No Docker required.
+- **Full stack, one command:** `docker compose up --build` → http://localhost:8080
+  (PostgreSQL + TimescaleDB, Kafka, backend, worker, frontend, gateway).
+  Details + Kubernetes: [deploy/README.md](deploy/README.md).
+- **Free-tier cloud** (Render + Vercel + Railway, no Docker): [DEPLOY.md](DEPLOY.md).
 
 ---
 
