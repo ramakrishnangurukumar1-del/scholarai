@@ -175,7 +175,36 @@ def run_verification_pipeline(
     )
 
 
+_PROFILE_FIELDS = {
+    "full_name": str,
+    "phone": str,
+    "college": str,
+    "course": str,
+    "year": int,
+    "cgpa": float,
+    "annual_income": float,
+    "family_members": int,
+    "income_source": str,
+}
+
+
+def sync_profile_from_form(student: Student, form: dict[str, Any]) -> None:
+    """An application carries the student's own details — keep the profile in step
+    so eligibility scoring and future applications use the latest numbers."""
+    for field, caster in _PROFILE_FIELDS.items():
+        val = form.get(field)
+        if val in (None, ""):
+            continue
+        try:
+            setattr(student, field, caster(val))
+        except (TypeError, ValueError):
+            pass
+    required = ("full_name", "phone", "college", "course", "year", "cgpa", "annual_income")
+    student.profile_complete = all(getattr(student, f) not in (None, "") for f in required)
+
+
 def submit(db: Session, application: Application, student: Student, scholarship: Scholarship):
+    sync_profile_from_form(student, application.form_data or {})
     application.submitted_at = datetime.now(UTC)
     application.status = ApplicationStatus.submitted
     add_history(
