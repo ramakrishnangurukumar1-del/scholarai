@@ -1,0 +1,14 @@
+# Slim dependency set for the Vercel serverless API.
+# The OCR stack (pytesseract/pillow/pypdf/pymupdf) and Kafka are omitted — the
+# serverless runtime has no Tesseract binary, so OCR degrades to manual entry.
+fastapi>=0.118
+sqlalchemy>=2.0.43
+alembic>=1.14
+psycopg[binary]>=3.3.1
+pydantic>=2.12
+pydantic-settings>=2.7
+python-dotenv>=1.0
+python-multipart>=0.0.20
+pyjwt>=2.10
+email-validator>=2.2
+google-genai>=1.0

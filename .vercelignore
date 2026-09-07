@@ -1,0 +1,8 @@
+backend/tests
+backend/demo_docs
+backend/storage
+backend/.venv
+deploy
+docker-compose.yml
+*.md
+!README.md
