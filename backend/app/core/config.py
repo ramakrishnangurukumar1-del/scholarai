@@ -1,6 +1,7 @@
 import sys
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _DEV_SECRET = "dev-secret-change-me-in-production"
@@ -54,6 +55,17 @@ class Settings(BaseSettings):
     # without it the assistant returns a deterministic grounded answer.
     GOOGLE_API_KEY: str = ""
     AI_MODEL: str = "gemini-flash-lite-latest"
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def _normalise_db_url(cls, v: str) -> str:
+        # Managed Postgres providers (Render, Heroku, Railway) hand out a bare
+        # "postgres://" / "postgresql://" URL; SQLAlchemy needs an explicit driver.
+        if v.startswith("postgres://"):
+            v = "postgresql://" + v[len("postgres://") :]
+        if v.startswith("postgresql://"):
+            v = "postgresql+psycopg://" + v[len("postgresql://") :]
+        return v
 
     @property
     def cors_origins_list(self) -> list[str]:

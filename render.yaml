@@ -1,12 +1,19 @@
-# Render Blueprint — deploys the ScholarAI API.
-# (Frontend goes to Vercel/Netlify; MySQL to Railway/Aiven — see DEPLOY.md.)
+# Render Blueprint — deploys the ScholarAI API + a managed PostgreSQL database.
+# The React frontend goes to Vercel (see DEPLOY.md).
+databases:
+  - name: scholarai-db
+    plan: free
+    databaseName: scholarai
+    user: scholarai
+
 services:
   - type: web
     name: scholarai-api
     runtime: python
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: alembic upgrade head && python -m scripts.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
@@ -14,8 +21,10 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        sync: false          # paste your managed-MySQL URL in the dashboard
+        fromDatabase:
+          name: scholarai-db
+          property: connectionString
       - key: CORS_ORIGINS
         sync: false          # your deployed frontend URL, e.g. https://scholarai.vercel.app
       - key: GOOGLE_API_KEY
-        sync: false          # optional — enables the real LLM assistant
+        sync: false          # optional — enables the LLM review assistant
