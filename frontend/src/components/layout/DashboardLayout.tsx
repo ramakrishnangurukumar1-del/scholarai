@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { useAuth } from '@/lib/auth'
 import { Icon, type IconName } from '@/components/ui/icons'
+import { Logo } from '@/components/ui/Logo'
 import type { Role } from '@/lib/types'
 
 type NavItem = { to: string; label: string; icon: IconName }
@@ -44,21 +45,8 @@ export function DashboardLayout() {
           dark ? 'bg-primary text-white' : 'border-r border-gray-200 bg-white',
         )}
       >
-        <div
-          className={cn(
-            'mb-8 flex items-center gap-2.5 px-2 text-lg font-bold',
-            dark ? 'text-white' : 'text-primary',
-          )}
-        >
-          <span
-            className={cn(
-              'grid h-8 w-8 place-items-center rounded-lg text-sm',
-              dark ? 'bg-white/15 text-white' : 'bg-primary text-white',
-            )}
-          >
-            ◆
-          </span>
-          ScholarAI
+        <div className="mb-8 px-2">
+          <Logo light={dark} />
         </div>
         <nav className="flex-1 space-y-1">
           {items.map((it) => {

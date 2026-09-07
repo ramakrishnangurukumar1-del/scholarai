@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui'
+import { Logo } from '@/components/ui/Logo'
 
 export function PublicNav() {
   const [menu, setMenu] = useState(false)
@@ -8,10 +9,7 @@ export function PublicNav() {
   return (
     <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link to="/" className="flex items-center gap-2 text-lg font-bold text-primary">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-white">S</span>
-          ScholarAI
-        </Link>
+        <Link to="/"><Logo /></Link>
         <nav className="hidden items-center gap-7 text-sm font-medium text-gray-600 md:flex">
           <a href="#how" className="hover:text-primary">How It Works</a>
           <a href="#ai" className="hover:text-primary">Automation</a>
